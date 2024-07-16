@@ -14,24 +14,28 @@ use Illuminate\Support\Facades\Log;
 
 class UrbRequestController extends BaseController
 {
-   public function index(Request $request)
-{
-    $keyword = $request->input('file_type');
-    $user = $request->user();
+    public function index(Request $request)
+    {
+        $file_type = $request->input('file_type');
+        $user = $request->user();
 
-    if ($user->role->role === 'admin') {
-        $urb_request = UrbRequest::where('file_type', $keyword)->get();
-    } elseif ($user->role->role === 'manager') {
-        $urb_request = UrbRequest::where('file_type', $keyword)
-                                 ->where('user_id', $user->id)
-                                 ->get();
-    } else {
-        $urb_request = collect();
+        if ($user->role->role === 'admin') {
+            $urb_request = UrbRequest::where('file_type', $file_type)->where('canceled' , false)->get();
+        } elseif ($user->role->role === 'manager') {
+            $urb_request = UrbRequest::where('file_type', $file_type)
+                ->where('user_id', $user->id)
+                ->where('canceled' , false)
+                ->get();
+        } else {
+            $urb_request = collect();
+        }
+        Log::info('File Type:', ['file_type' => $file_type]);
+        Log::info('Query Results:', $urb_request->toArray());
+
+        $urb_request = $urb_request->present(UrbRequestPresenter::class);
+
+        return $this->sendResponse($urb_request, 'retrieved successfully.');
     }
-    $urb_request = $urb_request->present(UrbRequestPresenter::class);
-
-    return $this->sendResponse($urb_request, 'retrieved successfully.');
-}
 
 
 
@@ -74,14 +78,14 @@ class UrbRequestController extends BaseController
         // }
         $input['user_id'] = Auth::user()->id;
         // $urb_req = UrbRequest::create($input);
-           // Decode base64 files and store them
-    // $topographiqueFile = $this->storeBase64File($input['topographiqueFile']);
-    // $proprityFile = $this->storeBase64File($input['proprietyFile']);
-    // $arFile = $this->storeBase64File($input['architectFile']);
-    // $puFile = $this->storeBase64File($input['procurationFile']);
+        // Decode base64 files and store them
+        // $topographiqueFile = $this->storeBase64File($input['topographiqueFile']);
+        // $proprityFile = $this->storeBase64File($input['proprietyFile']);
+        // $arFile = $this->storeBase64File($input['architectFile']);
+        // $puFile = $this->storeBase64File($input['procurationFile']);
 
-    // Save to database or handle as needed
-    $urb_req = UrbRequest::create($input);
+        // Save to database or handle as needed
+        $urb_req = UrbRequest::create($input);
         return $this->sendResponse($urb_req, 'Created successfully.');
     }
 
@@ -130,7 +134,7 @@ class UrbRequestController extends BaseController
 
 
 
-    public function destroy(UrbRequest $traite)
+    public function destroy($id)
     {
         // $traite->update(array('is_deleted' => true));
 
@@ -139,8 +143,10 @@ class UrbRequestController extends BaseController
         // $order->payment_status = "unpaid";
         // $order->payment_type = "";
         // $order->save();
-
-        // return $this->sendResponse([], 'Traite deleted successfully.');
+        $urb_request = UrbRequest::find($id);
+        $urb_request->canceled = true;
+        $urb_request->save();
+        return $this->sendResponse($urb_request, 'Request canceled successfully.');
     }
 
     private function storeBase64File($base64File)
@@ -178,7 +184,6 @@ class UrbRequestController extends BaseController
         $urb_request = UrbRequest::where('file_type', $input['file_type'])->get();
         $urb_request = $urb_request->present(UrbRequestPresenter::class);
         return $this->sendResponse($urb_request, 'retrieved successfully.');
-
     }
 
     public function uploadImage(Request $request)
@@ -210,7 +215,4 @@ class UrbRequestController extends BaseController
             );
         }
     }
-
-
-
 }

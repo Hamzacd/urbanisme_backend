@@ -21,6 +21,7 @@ class CreateUrbRequestsTable extends Migration
             $table->string('procurationFile')->nullable();
             $table->string('file_type')->nullable();
             $table->boolean('status')->default(0);
+            $table->boolean('canceled')->default(false);
             $table->bigInteger('user_id')->unsigned()->nullable();
             $table->foreign('user_id')->references('id')->on('users')
                 ->onDelete('set null')->onUpdate('cascade');

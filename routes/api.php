@@ -44,7 +44,7 @@ Route::middleware(['auth:api','scope:admin,manager','cors'])->group(function () 
         Route::put('/profile/general/{user}', 'ChangeGeneral')->name('profile.ChangeGeneral');
     });
 
-    // Route::resource('urb_requests', UrbRequestController::class);
+    Route::resource('urb_requests', UrbRequestController::class);
     Route::controller(UrbRequestController::class)->group(function () {
         Route::get('/urb_requests', 'index')->name('urb_requests.index');
         Route::post('/urb_requests', 'store')->name('urb_requests.store');
