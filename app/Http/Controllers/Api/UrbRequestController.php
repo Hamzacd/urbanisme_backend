@@ -92,12 +92,12 @@ class UrbRequestController extends BaseController
 
     public function show($id)
     {
-        $urb_request = UrbRequest::where('id', $id)->first();
+        $urb_request = UrbRequest::where('id', $id)->get();
 
         if (is_null($urb_request)) {
             return $this->sendError('not found.');
         }
-
+        $urb_request = $urb_request->present(UrbRequestPresenter::class);
         return $this->sendResponse($urb_request, 'retrieved successfully.');
     }
 
@@ -107,10 +107,10 @@ class UrbRequestController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'topographiqueFile' => 'required',
-            'proprietyFile' => 'required',
-            'architectFile' => 'required',
-            'procurationFile' => 'required'
+            'topographique_file' => 'required',
+            'propriety_file' => 'required',
+            'architect_file' => 'required',
+            'procuration_file' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -123,10 +123,10 @@ class UrbRequestController extends BaseController
             return $this->sendError('UrbRequest not found.');
         }
 
-        $urb_Request->topographiqueFile = $input['topographiqueFile'];
-        $urb_Request->proprietyFile = $input['proprietyFile'];
-        $urb_Request->architectFile = $input['architectFile'];
-        $urb_Request->procurationFile = $input['procurationFile'];
+        $urb_Request->topographiqueFile = $input['topographique_file'];
+        $urb_Request->proprietyFile = $input['propriety_file'];
+        $urb_Request->architectFile = $input['architect_file'];
+        $urb_Request->procurationFile = $input['procuration_file'];
         $urb_Request->save();
 
         return $this->sendResponse($urb_Request, 'Updated successfully.');
