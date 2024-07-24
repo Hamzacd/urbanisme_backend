@@ -48,8 +48,7 @@ class UrbRequestController extends BaseController
             'file_type' => 'required',
             'topographiqueFile' => 'required',
             'proprietyFile' => 'required',
-            'architectFile' => 'required',
-            'procurationFile' => 'required'
+            'architectFile' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -109,8 +108,7 @@ class UrbRequestController extends BaseController
         $validator = Validator::make($input, [
             'topographique_file' => 'required',
             'propriety_file' => 'required',
-            'architect_file' => 'required',
-            'procuration_file' => 'required'
+            'architect_file' => 'required'
         ]);
 
         if ($validator->fails()) {
