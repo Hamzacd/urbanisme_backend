@@ -50,7 +50,8 @@ Route::middleware(['auth:api','scope:admin,manager','cors'])->group(function () 
         Route::post('/urb_requests', 'store')->name('urb_requests.store');
         Route::get('/get_urb_requests/{id}', 'show')->name('urb_requests.show');
         Route::put('urb_requests/{id}', 'update')->name('urb_requests.update');
-        Route::post('/urb_requests/updateStatus', 'updateStatus')->name('urb_requests.updateStatus');
+        // Route::post('/urb_requests/updateStatus', 'updateStatus')->name('urb_requests.updateStatus');
+        Route::patch('/urb_requests/update-status/{id}', 'updateStatus')->name('urb_requests.updateStatus');
         Route::post('/urb_requests/uploadImage', 'uploadImage')->name('urb_requests.uploadImage');
 
     });

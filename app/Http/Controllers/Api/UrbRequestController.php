@@ -20,11 +20,11 @@ class UrbRequestController extends BaseController
         $user = $request->user();
 
         if ($user->role->role === 'admin') {
-            $urb_request = UrbRequest::where('file_type', $file_type)->where('canceled' , false)->get();
+            $urb_request = UrbRequest::where('file_type', $file_type)->where('canceled', false)->get();
         } elseif ($user->role->role === 'manager') {
             $urb_request = UrbRequest::where('file_type', $file_type)
                 ->where('user_id', $user->id)
-                ->where('canceled' , false)
+                ->where('canceled', false)
                 ->get();
         } else {
             $urb_request = collect();
@@ -169,22 +169,40 @@ class UrbRequestController extends BaseController
             return null;
         }
     }
-
-    public function updateStatus(Request $request)
+    public function updateStatus(Request $request, $id)
     {
         $input = $request->all();
-        $urb_request = UrbRequest::find($input['id']);
+        $validator = Validator::make($input, [
+            'status' => 'required|in:pending,agence,commune,province',
+        ]);
 
-        if (is_null($urb_request)) {
-            return $this->sendError('not found.');
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
         }
-        $urb_request->status = $input['status'];
+
+        $urb_request = UrbRequest::findOrFail($id);
+        $urb_request->status = $request->input('status');
         $urb_request->save();
 
-        $urb_request = UrbRequest::where('file_type', $input['file_type'])->get();
-        $urb_request = $urb_request->present(UrbRequestPresenter::class);
-        return $this->sendResponse($urb_request, 'retrieved successfully.');
+        return $this->sendResponse($urb_request, 'Status updated successfully.');
+        // Return a response
+
     }
+    // public function updateStatus(Request $request)
+    // {
+    //     $input = $request->all();
+    //     $urb_request = UrbRequest::find($input['id']);
+
+    //     if (is_null($urb_request)) {
+    //         return $this->sendError('not found.');
+    //     }
+    //     $urb_request->status = $input['status'];
+    //     $urb_request->save();
+
+    //     $urb_request = UrbRequest::where('file_type', $input['file_type'])->get();
+    //     $urb_request = $urb_request->present(UrbRequestPresenter::class);
+    //     return $this->sendResponse($urb_request, 'retrieved successfully.');
+    // }
 
     public function uploadImage(Request $request)
     {

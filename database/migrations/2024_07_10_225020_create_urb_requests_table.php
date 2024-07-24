@@ -20,7 +20,8 @@ class CreateUrbRequestsTable extends Migration
             $table->string('topographiqueFile')->nullable();
             $table->string('procurationFile')->nullable();
             $table->string('file_type')->nullable();
-            $table->boolean('status')->default(0);
+            // $table->boolean('status')->default(0);
+            $table->enum('status',['pending','agence','commune','province'])->default('pending');
             $table->boolean('canceled')->default(false);
             $table->bigInteger('user_id')->unsigned()->nullable();
             $table->foreign('user_id')->references('id')->on('users')
