@@ -14,14 +14,14 @@ class DashboardStatistiqueController extends BaseController
 {
     public function getUnapprovedRequest()
     {
-        $unaproved_req = UrbRequest::where('status' , 0)
+        $unaproved_req = UrbRequest::where('status' , 'pending')
 
             ->get()->present(UrbRequestPresenter::class);
         return $this->sendResponse($unaproved_req, 'retrieved successfully.');
     }
     public function getApprovedRequest()
     {
-        $aproved_req = UrbRequest::where('status' , 1)
+        $aproved_req = UrbRequest::where('status', '!=', 'pending')
 
         ->get()->present(UrbRequestPresenter::class);
     return $this->sendResponse($aproved_req, 'retrieved successfully.');
