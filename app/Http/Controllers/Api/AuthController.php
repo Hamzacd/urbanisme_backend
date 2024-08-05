@@ -20,10 +20,11 @@ class AuthController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'cin' => 'required',
             'password' => 'required',
-            // 'c_password' => 'required|same:password',
+            'role' => 'required',
+
         ]);
 
         if($validator->fails()){
@@ -32,32 +33,23 @@ class AuthController extends BaseController
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
+        try {
+            $user = User::create($input);
 
-        $user = User::create($input);
-        // $user = User::create([
-        //     'name' => $input['name'],
-        //     'email' => $input['email'],
-        //     'password' => $input['password'],
-        // ]);
-        // $user->role()->save(['role' =>$input['role']]);
+            $userRole = Role::create([
+                'user_id' => $user->id,
+                'role' => $input['role']
+            ]);
 
-        // Add role as scope
+            $user['token'] = $user->createToken($user->email . '_' . now(), [$userRole->role])->accessToken;
+            $user['role'] = $userRole->role;
 
-        $userRole = Role::create([
-            'user_id' => $user->id,
-            'role' => $input['role']
-        ]);
+            $success['user'] = $user;
 
-        // $success['token'] =  $user->createToken('stockMangeApp')->accessToken;
-        // $success['token'] =  $user->createToken($user->email . '_' . now() , [$userRole->role])->accessToken;
-        // $success['role'] =  $userRole->role;
-        // $success['user'] =  $user;
-
-        $user['token'] = $user->createToken($user->email . '_' . now() , [$userRole->role])->accessToken;
-        $user['role'] = $userRole->role;
-        $success['user'] =  $user;
-
-        return $this->sendResponse($success, 'User register successfully.');
+            return $this->sendResponse($success, 'User registered successfully.');
+        } catch (\Exception $e) { // Catch any exceptions
+            return $this->sendError('Registration Error.', ['error' => $e->getMessage()]);
+        }
     }
 
     /**
